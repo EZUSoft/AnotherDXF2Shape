@@ -50,6 +50,8 @@ AnotherDXF2Shape: Convert DXF to shape and add to QGIS
 
 
 
+
+
 from osgeo import ogr
 
 try:
@@ -218,6 +220,7 @@ def splitText (fText,TxtType):
     if TxtType == "MTEXT" or TxtType == "UNDEF":
         aktText=DecodeDXFUTF(aktText)
 
+
         for c in aktText:
 
             if bs and c.upper() == 'H': 
@@ -264,7 +267,12 @@ def splitText (fText,TxtType):
             else:
                 ignor = True
             if c == '\\':
-                bs = True
+                if bs:
+
+                    uText = uText + '\\\\'
+                    bs=False
+                else:
+                    bs = True
             else:
                 if not ignor:
                     if bs:
@@ -296,7 +304,17 @@ def ShapeCodepage2Utf8 (OrgShpDat, TargetShpDat, OrgCodePage):
     oLayer=QgsVectorLayer(OrgShpDat,'', 'ogr')
     oLayer.setProviderEncoding(OrgCodePage)
     oLayer.dataProvider().setEncoding(OrgCodePage)
-    zLayer=QgsVectorFileWriter.writeAsVectorFormat(oLayer,TargetShpDat,TargetCodePage, oLayer.crs(), "ESRI Shapefile")
+    
+
+    if myQGIS_VERSION_INT() < 31003:
+        zLayer=QgsVectorFileWriter.writeAsVectorFormat(oLayer,TargetShpDat,TargetCodePage, oLayer.crs(), "ESRI Shapefile")
+    else:
+        options = QgsVectorFileWriter.SaveVectorOptions()
+        options.driverName = "ESRI Shapefile"
+        options.fileEncoding = TargetCodePage
+        zLayer=QgsVectorFileWriter.writeAsVectorFormatV2(oLayer,TargetShpDat, QgsCoordinateTransformContext(), options)
+    
+
 
 
 
@@ -315,13 +333,20 @@ def attTableEdit (sOutForm, inpDat,bFormat,sCharSet,gpkgTable=None):
     
     if sOutForm=="SHP":
         layer = source.GetLayer()
+        if layer is None:
+            source.Destroy()
+            addFehler(tr('ogr: layer not found: ') + inpDat)
+            return
     else:
         layer = source.GetLayerByName( gpkgTable )
+        if layer is None:
+            source.Destroy()
 
-    if layer is None:
-        source.Destroy()
-        addFehler(tr('ogr: layer not found: ') + inpDat)
-        return
+
+            hinweislog(tr('ogr: layer not found: ') + inpDat + '(' + gpkgTable + ')')
+            return
+    
+
         
     laydef = layer.GetLayerDefn()
     if laydef is None:
@@ -357,11 +382,13 @@ def attTableEdit (sOutForm, inpDat,bFormat,sCharSet,gpkgTable=None):
     layer.StartTransaction()
     feature = layer.GetNextFeature()
     while feature:
-        if True: 
+        try:
             TxtType = "UNDEF"
             SubClass = feature.GetField('SubClasses')
             if SubClass is None:
-                addHinweis(tr("missing field 'SubClasses' in: ") + inpDat)
+
+                if sOutForm=="SHP":
+                    addHinweis(tr("missing field 'SubClasses' in: ") + inpDat)
             else:
 
 
@@ -380,8 +407,10 @@ def attTableEdit (sOutForm, inpDat,bFormat,sCharSet,gpkgTable=None):
                 addHinweis(tr("missing field 'ogr_style' in: ") + inpDat)
             
             elif att[-1] != ')':
-                print (att)
-                addHinweis(tr("incomplete field 'ogr_style' at EntityHandle: ") + str(aktHandle)) 
+                if aktHandle == None:
+                    addHinweis(tr("incomplete field 'ogr_style' at EntityHandle: ") )
+                else:
+                    addHinweis(tr("incomplete field 'ogr_style' at EntityHandle: ") + str(aktHandle)) 
 
             else:
                 sArt,sDaten = trennArtDaten(att)
@@ -398,10 +427,13 @@ def attTableEdit (sOutForm, inpDat,bFormat,sCharSet,gpkgTable=None):
                         w = arr[1]
 
                         if f == "c":
+
+                            if w == "#ffffff": w="#f0f0f0"
                             feature.SetField('color', w)
                         if f == "fc":
 
-                            if w == "#000000": w="#ffffff"
+
+                            if w == "#000000": w="#f0f0f0"
                             feature.SetField('fcolor', w)
                         if f == "f":
                             feature.SetField('font', w)
@@ -446,7 +478,10 @@ def attTableEdit (sOutForm, inpDat,bFormat,sCharSet,gpkgTable=None):
                                     c="?"; bDecodeError=True
                                 AktText=AktText + c
                             if bDecodeError:
-                                addFehler(tr("Wrong char in  'ogr_style' at EntityHandle: ") + aktHandle + tr(" (Check your choose charset)") + tryDecode(dummy,sCharSet)) 
+                                if aktHandle == None:
+                                    addFehler(tr("Wrong char in  'ogr_style' at EntityHandle: ") +  tr(" (Check your choose charset)") + tryDecode(dummy,sCharSet)) 
+                                else:
+                                    addFehler(tr("Wrong char in  'ogr_style' at EntityHandle: ") + aktHandle + tr(" (Check your choose charset)") + tryDecode(dummy,sCharSet)) 
 
 
                             if bFormat:
@@ -456,9 +491,15 @@ def attTableEdit (sOutForm, inpDat,bFormat,sCharSet,gpkgTable=None):
                                 if not aktSize is None:
                                     feature.SetField('size', aktSize)
                                 
+
                                 if (color != ""):
-                                    color=hex(int(color[1:])).replace('0x','#')  
-                                    feature.SetField('color',color)                                    
+                                    try:
+                                        color=hex(int(color[1:])).replace('0x','#') 
+
+                                        if color == "#ffffff": color="#f0f0f0"                                        
+                                        feature.SetField('color',color)
+                                    except:
+                                        feature.SetField('color','#FEHLER#')
                                 
 
 
@@ -478,7 +519,7 @@ def attTableEdit (sOutForm, inpDat,bFormat,sCharSet,gpkgTable=None):
                                 feature.SetField('underline', False)
                 layer.SetFeature(feature)
             feature = layer.GetNextFeature()
-        else: 
+        except:
             if att is None:
                 subLZF ()
             else:

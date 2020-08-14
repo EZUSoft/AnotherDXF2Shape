@@ -60,7 +60,6 @@ def fncCGFensterTitel(intCG = None):
 def DecodeDXFUTF(aktText):
     if sys.version[0] == "2":
 
-        print ('hier')
         return aktText
 
     a=""
@@ -77,10 +76,10 @@ def DecodeDXFUTF(aktText):
     return (a + s)    
 if __name__ == "__main__": 
     import sys
-    print(sys.version)
-    print (fncProgVersion())
-    print (fncDebugMode())
-    print (DecodeDXFUTF('\\U+00f6'))
+
+
+
+
     pass
 
 

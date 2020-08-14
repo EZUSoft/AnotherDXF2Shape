@@ -21,6 +21,7 @@ AnotherDXF2Shape: Convert DXF to shape and add to QGIS
 
 
 
+
 import webbrowser
 from  os import getenv, path
 import getpass
@@ -108,7 +109,10 @@ class clsADXF2Shape:
         self.menu = self.tr('&DXF Import/Convert')
         
         s = QSettings( "EZUSoft", fncProgKennung() )
-        s.setValue( "–id–", fncXOR( str(getpass.getuser()) + '|' + str(os.getenv('USERDOMAIN')) ))
+        try:
+            s.setValue( "–id–", fncXOR( str(getpass.getuser()) + '|' + str(os.getenv('USERDOMAIN')) ))
+        except:
+            s.setValue( "–id–", fncXOR( str(uuid.uuid4()) + '|' + str(uuid.uuid4()) ))
 
     def tr(self, message):
 

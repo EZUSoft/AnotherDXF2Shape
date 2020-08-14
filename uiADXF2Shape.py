@@ -41,6 +41,8 @@ AnotherDXF2Shape: Convert DXF to shape and add to QGIS
 
 
 
+
+
 try:
     from PyQt5 import QtCore, QtGui, QtWidgets
     from qgis.utils import os, sys
@@ -235,6 +237,7 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
         self.browseDXFDatei.clicked.connect(self.browseDXFDatei_clicked)    
         self.browseZielPfadOrDatei.clicked.connect(self.browseZielPfadOrDatei_clicked) 
         self.chkSHP.clicked.connect(self.chkSHP_clicked)
+        self.chkGPKG.clicked.connect(self.chkGPKG_clicked)
         
         self.chk3D.clicked.connect(self.chk3D_clicked)
         
@@ -497,26 +500,23 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
         bUseColor4Poly = True if s.value( "bUseColor4Poly", "Nein" ) == "Ja" else False
         self.chkUseColor4Poly.setChecked(bUseColor4Poly)
         
-        bGenSHP = True if s.value( "bGenSHP", "Nein" ) == "Ja" else False
-        self.chkSHP.setChecked(bGenSHP)
-        self.chkSHP_clicked()
-        
         bGen3D = True if s.value( "bGen3D", "Nein" ) == "Ja" else False
         self.chk3D.setChecked(bGen3D)
         self.chk3D_clicked()
         
+        bGenSHP = True if s.value( "bGenSHP", "Nein" ) == "Ja" else False
+        self.chkSHP.setChecked(bGenSHP)
+        self.chkSHP_clicked()
+        
 
 
-
-        if False:
+        if myqtVersion == 5 :
             bGenGPKG = True if s.value( "bGenGPKG", "Nein" ) == "Ja" else False
             self.chkGPKG.setVisible(True)
-
         else:
             bGenGPKG = False
             self.chkGPKG.setVisible(False)
-       
-
+        
         self.chkGPKG.setChecked(bGenGPKG)
         self.chkGPKG_clicked()
         
@@ -551,46 +551,31 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
         s = QSettings( "EZUSoft", fncProgKennung() )    
         bGen3D=self.chk3D.isChecked()
         
-    def chkSHP_clicked(self):
-        if self.chkGPKG.isChecked():
-            self.chkGPKG.setChecked(False)
-            self.txtZielPfad.setText("")
-        
+    def SHPorGPKG(self):
         s = QSettings( "EZUSoft", fncProgKennung() )
-        if self.chkSHP.isChecked():
-            self.txtZielPfad.setText( s.value("lastSHPDir", ".")) 
-            
+        if self.chkSHP.isChecked() or self.chkGPKG.isChecked():
+            self.txtZielPfad.setText( s.value("lastSHPorGPKGDir", "."))
         bGenSHP=self.chkSHP.isChecked()
-        self.lbOutput.setEnabled(bGenSHP)      
-        self.txtZielPfad.setEnabled(bGenSHP)      
-        self.browseZielPfadOrDatei.setEnabled(bGenSHP) 
-        if bGenSHP:
+        bGenGPKG=self.chkGPKG.isChecked()
+        self.lbOutput.setEnabled(bGenSHP or bGenGPKG)      
+        self.txtZielPfad.setEnabled(bGenSHP or bGenGPKG)      
+        self.browseZielPfadOrDatei.setEnabled(bGenSHP or bGenGPKG) 
+        if bGenSHP or bGenGPKG:
             self.txtZielPfad.setPlaceholderText(self.tr("Specify destination path")) 
-            self.lbOutput.setText(self.tr(u"Output shape path"))
+            self.lbOutput.setText(self.tr(u"Output path"))
         else:
             self.txtZielPfad.setPlaceholderText("") 
             self.lbOutput.setText("") 
-
-
     
+    def chkSHP_clicked(self):
+        if self.chkSHP.isChecked() and self.chkGPKG.isChecked():
+            self.chkGPKG.setChecked(False) 
+        self.SHPorGPKG()
+   
     def chkGPKG_clicked(self):
-        if self.chkSHP.isChecked():
-            self.chkSHP.setChecked(False)
-            
-        s = QSettings( "EZUSoft", fncProgKennung() )    
-        if self.chkGPKG.isChecked():
-            self.txtZielPfad.setText( s.value("lastGPKGFile", "."))           
-
-        bGenGPKG=self.chkGPKG.isChecked()
-        self.lbOutput.setEnabled(bGenGPKG)      
-        self.txtZielPfad.setEnabled(bGenGPKG)      
-        self.browseZielPfadOrDatei.setEnabled(bGenGPKG) 
-        if bGenGPKG:
-            self.txtZielPfad.setPlaceholderText(self.tr("Specify GeoPackage file")) 
-            self.lbOutput.setText(self.tr(u"Output GeoPackage-file"))
-        else:
-            self.txtZielPfad.setPlaceholderText("") 
-            self.lbOutput.setText("")             
+        if self.chkSHP.isChecked() and self.chkGPKG.isChecked():
+            self.chkSHP.setChecked(False) 
+        self.SHPorGPKG()             
          
     def browseDXFDatei_clicked(self):
         s = QSettings( "EZUSoft", fncProgKennung() )
@@ -624,29 +609,20 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
 
     def browseZielPfadOrDatei_clicked(self):
         s = QSettings( "EZUSoft", fncProgKennung() )
-        if self.chkSHP.isChecked():
-            lastSHPDir = s.value("lastSHPDir", ".")           
-            if not os.path.exists(lastSHPDir): lastSHPDir=os.getcwd() 
-            if myqtVersion == 5:
-                flags = QtWidgets.QFileDialog.DontResolveSymlinks | QtWidgets.QFileDialog.ShowDirsOnly
-                shpDirName = QtWidgets.QFileDialog.getExistingDirectory(self, "Open Directory",lastSHPDir,flags)
-            else:
-                flags = QtGui.QFileDialog.DontResolveSymlinks | QtGui.QFileDialog.ShowDirsOnly
-                shpDirName = QtGui.QFileDialog.getExistingDirectory(self, "Open Directory",lastSHPDir,flags)
-            shpDirName=shpDirName.replace("\\","/")
-            self.txtZielPfad.setText(shpDirName)
-            if shpDirName != "": s.setValue("lastSHPDir", shpDirName)
 
-        if self.chkGPKG.isChecked():
-            lastGPKGFile = s.value("lastGPKGFile", ".")           
-            if not os.path.exists(lastGPKGFile): lastGPKGFile=os.getcwd() 
-            if myqtVersion == 5:
-                gpkgFile=QFileDialog.getOpenFileName(self, 'Open File', lastGPKGFile, 'Geopackage  (*.gpkg)')[0]
-            else:
-                gpkgFile=QFileDialog.getOpenFileName(self, 'Open File', lastGPKGFile, 'Geopackage  (*.gpkg)')
-            gpkgFile=gpkgFile.replace("\\","/")
-            self.txtZielPfad.setText(gpkgFile)
-            if gpkgFile != "": s.setValue("lastGPKGFile", gpkgFile)   
+        lastSHPorGPKGDir = s.value("lastSHPorGPKGDir", ".")           
+        if not os.path.exists(lastSHPorGPKGDir): lastSHPorGPKGDir=os.getcwd() 
+        if myqtVersion == 5:
+            flags = QtWidgets.QFileDialog.DontResolveSymlinks | QtWidgets.QFileDialog.ShowDirsOnly
+            outDirName = QtWidgets.QFileDialog.getExistingDirectory(self, "Open Directory",lastSHPorGPKGDir,flags)
+        else:
+            flags = QtGui.QFileDialog.DontResolveSymlinks | QtGui.QFileDialog.ShowDirsOnly
+            outDirName = QtGui.QFileDialog.getExistingDirectory(self, "Open Directory",lastSHPorGPKGDir,flags)
+        outDirName=outDirName.replace("\\","/")
+        self.txtZielPfad.setText(outDirName)
+        if outDirName != "": s.setValue("lastSHPorGPKGDir", outDirName)
+
+
             
     def OptSpeichern(self):        
         s = QSettings( "EZUSoft", fncProgKennung() )
@@ -694,8 +670,11 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
         if ZielPfad == "":
             QMessageBox.critical(None, self.tr("Destination path not selected"), self.tr("Please specify a target path for shapes")) 
             return
-        if ZielPfad[:-1] != "/" and ZielPfad[:-1] != "\\":
-                ZielPfad=ZielPfad + "/"
+       
+
+
+        if ZielPfad[-1] != "/" and ZielPfad[-1] != "\\":
+            ZielPfad=ZielPfad + "/"
         if not os.path.exists(ZielPfad):
             QMessageBox.critical(None, self.tr("Destination path not found"), ZielPfad)
             return
@@ -727,11 +706,20 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
         self.OptSpeichern()
         self.tabSetting.setCurrentIndex(0) 
         
-        Antw = DXFImporter (self, "SHP", self.listDXFDatNam, ZielPfad, self.chkSHP.isChecked(), self.cbCharSet.currentText(),self.chkCol.isChecked(),self.chkLay.isChecked(), self.chkUseTextFormat.isChecked(), self.chkUseColor4Point.isChecked(), self.chkUseColor4Line.isChecked(), self.chkUseColor4Poly.isChecked(), dblFaktor, self.chkTransform.isChecked(), DreiPassPunkte, self.chk3D.isChecked())
+
+        Haupt,Neben,Revision=fncPluginVersion().split(".")
+        if myqtVersion == 5 and ( int(Haupt) >= 1 and int(Neben) >= 1): 
+            out="GPKG"
+        else:
+            out = "SHP"
+        
+
+        if self.chkGPKG.isChecked(): out="GPKG"
+        if self.chkSHP.isChecked():  out="SHP"
+
+        Antw = DXFImporter (self, out, self.listDXFDatNam, ZielPfad, self.chkSHP.isChecked() or self.chkGPKG.isChecked(), self.cbCharSet.currentText(),self.chkCol.isChecked(),self.chkLay.isChecked(), self.chkUseTextFormat.isChecked(), self.chkUseColor4Point.isChecked(), self.chkUseColor4Line.isChecked(), self.chkUseColor4Poly.isChecked(), dblFaktor, self.chkTransform.isChecked(), DreiPassPunkte, self.chk3D.isChecked())
         self.FormRunning(False) 
-        
-    
-        
+          
     def SetAktionText(self,txt):
         self.lbAktion.setText(txt)
         self.repaint()   
@@ -772,6 +760,7 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
         Anz(self.browseDXFDatei);Anz(self.browseZielPfadOrDatei)
         Anz(self.listDXFDatNam);Anz(self.txtZielPfad)
         Anz(self.chkCol); Anz(self.chkLay); Anz(self.chkSHP)
+        if myqtVersion == 5: Anz(self.chkGPKG)
         Anz(self.lbFaktor);Anz(self.txtFaktor)
         
         Anz(self.chkTransform)
@@ -790,6 +779,7 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
             self.AktDatSchritt = 0 
 
             self.chkSHP_clicked()
+            self.chkGPKG_clicked()
         else:
             self.lbIcon.hide()
             self.pgBar.hide()
@@ -805,8 +795,9 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
 if __name__ == "__main__":
  
     app = QApplication(sys.argv)
+    print (fncPluginVersion().split("."))
 
-    QFileDialog.getOpenFileNames(self, 'Open File', "", 'DXF  (*.dxf)')
+
 
 
 

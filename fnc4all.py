@@ -385,17 +385,18 @@ def qXDatAbsolute2Relativ(tmpDat, qlrDat, PathAbsolute):
         os.remove(tmpDat)
         
 if __name__ == "__main__": 
+    print (EZUTempDir())
 
 
 
 
 
-    b=bytearray.fromhex("00f6")
-    s="s1" + b.decode("UTF-16-BE") + "s2"
-    print (s)
 
 
-    print(b'\x00\xf6'.decode("UTF-16-BE")) 
+
+
+
+
 
 
 
