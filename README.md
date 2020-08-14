@@ -1,5 +1,5 @@
 # AnotherDXF2Shape
-QGIS Plugin DXF Import and DXF to Shape convert
+QGIS Plugin DXF Import and DXF to Shape/GeoPackage convert
 
 
 Features: 
