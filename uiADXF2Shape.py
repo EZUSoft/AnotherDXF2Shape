@@ -3,7 +3,7 @@
 /***************************************************************************
  A QGIS plugin
 AnotherDXF2Shape: Convert DXF to shape and add to QGIS
-        copyright            : (C) 2019 by EZUSoft
+        copyright            : (C) 2020 by EZUSoft
         email                : qgis (at) makobo.de
  ***************************************************************************/
 /***************************************************************************
@@ -15,6 +15,7 @@ AnotherDXF2Shape: Convert DXF to shape and add to QGIS
  *                                                                         *
  ***************************************************************************/
 """
+
 
 
 
@@ -662,7 +663,8 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
 
 
 
-        if self.chkSHP.isChecked():
+
+        if self.chkSHP.isChecked() or self.chkGPKG.isChecked() :
             ZielPfad=self.txtZielPfad.text()
         else:
             ZielPfad=EZUTempDir()
@@ -716,8 +718,9 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
 
         if self.chkGPKG.isChecked(): out="GPKG"
         if self.chkSHP.isChecked():  out="SHP"
+        
 
-        Antw = DXFImporter (self, out, self.listDXFDatNam, ZielPfad, self.chkSHP.isChecked() or self.chkGPKG.isChecked(), self.cbCharSet.currentText(),self.chkCol.isChecked(),self.chkLay.isChecked(), self.chkUseTextFormat.isChecked(), self.chkUseColor4Point.isChecked(), self.chkUseColor4Line.isChecked(), self.chkUseColor4Poly.isChecked(), dblFaktor, self.chkTransform.isChecked(), DreiPassPunkte, self.chk3D.isChecked())
+        Antw = DXFImporter (self,  out,      self.listDXFDatNam, ZielPfad,        self.chkSHP.isChecked() or self.chkGPKG.isChecked(), self.cbCharSet.currentText(),self.chkCol.isChecked(),self.chkLay.isChecked(), self.chkUseTextFormat.isChecked(), self.chkUseColor4Point.isChecked(), self.chkUseColor4Line.isChecked(), self.chkUseColor4Poly.isChecked(), dblFaktor, self.chkTransform.isChecked(), DreiPassPunkte, self.chk3D.isChecked())
         self.FormRunning(False) 
           
     def SetAktionText(self,txt):

@@ -3,7 +3,7 @@
 /***************************************************************************
  A QGIS plugin
 AnotherDXF2Shape: Convert DXF to shape and add to QGIS
-        copyright            : (C) 2019 by EZUSoft
+        copyright            : (C) 2020 by EZUSoft
         email                : qgis (at) makobo.de
  ***************************************************************************/
 /***************************************************************************
@@ -629,10 +629,13 @@ def EineDXF(uiParent, mLay_crs, bZielSave, sOutForm, grpProjekt,AktList, Kern, A
 
     if sOutForm == "GPKG":
         gpkgdat=zielPfadOrDatei+Kern+'.gpkg'
+        
+
         if bZielSave:
-            korrGPKGDatNam=(EZUTempDir() + str(uuid.uuid4()) + '.gpkg') 
+            korrGPKGDatNam=gpkgdat    
         else:
-            korrGPKGDatNam=gpkgdat            
+            korrGPKGDatNam=(EZUTempDir() + str(uuid.uuid4()) + '.gpkg') 
+        
                 
     for p in AktList:
         zE=zE+1       
