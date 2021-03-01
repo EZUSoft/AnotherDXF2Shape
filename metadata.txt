@@ -9,18 +9,24 @@
 
 [general]
 name=AnotherDXFImporter
-qgisMinimumVersion=2.14
+qgisMinimumVersion=2.8
 qgisMaximumVersion=3.99
 description=Add DXF to QGIS , optional georeferencing, optional convert DXF to Shape/GeoPackage
-version=1.2.0
-changelog=14.08.20 V1.2.0
+version=1.2.2
+changelog=01.03.21 V1.2.2
+    - Correction of 3D support for GeoPackage
+    
+    31.08.20 V1.2.1
+    - Correction target path of saved GeoPackage
+    
+    14.08.20 V1.2.0
     - support GeoPackage (QGIS 3.0)
     
     26.03.20 V1.1.7
     - bugfixes for getUsername()
 
     02.03.20 V1.1.6
-    - adaptations for QGIS 2.x
+    - bugfixes for QGIS 2.x
     
     27.02.20 V1.1.5
     - adaptations for QGIS 3.10.3 (no qpj file generate)
