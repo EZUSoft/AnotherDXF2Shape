@@ -82,6 +82,7 @@ AnotherDXF2Shape: Convert DXF to shape and add to QGIS
 
 
 
+
 from random import randrange
 from shutil import copyfile
 import uuid
@@ -674,9 +675,9 @@ def EineDXF(uiParent, mLay_crs, bZielSave, sOutForm, grpProjekt,AktList, Kern, A
 
         try:
             if sOutForm == "SHP":
-                opt=  ('-skipfailure %s -nlt %s %s -sql "select *, ogr_style from entities where OGR_GEOMETRY %s"') % (AktOpt,v[1],optGCP,v[2])      
+                opt = ('-skipfailure %s -nlt %s %s -sql "select *, ogr_style from entities where OGR_GEOMETRY %s"') % (AktOpt,v[1],optGCP,v[2])      
                 if bGen3D:
-                    opt = opt +  ' -dim 3'
+                    opt = opt +  ' -dim 3 '
 
                 if myqtVersion == 4:
                     pAntw=processing.runalg('gdalogr:convertformat',korrDXFDatNam , 0, opt , korrSHPDatNam)
@@ -696,10 +697,13 @@ def EineDXF(uiParent, mLay_crs, bZielSave, sOutForm, grpProjekt,AktList, Kern, A
                 ogrCharSet=ogrCharSet.upper()              
  
                 opt = '-append -update --config DXF_ENCODING "' + ogrCharSet + '" '
+                
 
                 opt = opt + '--config DXF_INCLUDE_RAW_CODE_VALUES TRUE '
                 opt = opt + ('%s -nlt %s %s -sql "select *, ogr_style from entities where OGR_GEOMETRY %s" -nln "%s"') % (AktOpt,v[1],optGCP,v[2], gpkgTable)      
-
+                if bGen3D:
+                    opt = opt +  ' -dim 3 '
+                
 
 
                 pList={'INPUT':korrDXFDatNam,'OPTIONS':opt,'OUTPUT': korrGPKGDatNam}
