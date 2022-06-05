@@ -1,0 +1,168 @@
+# -*- coding: utf-8 -*-
+# This file contains metadata for your plugin. Since 
+# version 2.0 of QGIS this is the proper way to supply 
+# information about a plugin. The old method of 
+# embedding metadata in __init__.py will 
+# is no longer supported since version 2.0.
+
+# This file should be included when you package your plugin.# Mandatory items:
+
+[general]
+name=AnotherDXFImporter
+qgisMinimumVersion=2.8
+qgisMaximumVersion=3.99
+description=Add DXF to QGIS , optional georeferencing, optional convert DXF to Shape/GeoPackage
+version=1.2.4
+changelog=03.07.22 V1.2.4
+    - internal adjustments
+    
+    18.03.21 V1.2.3
+    - Correction Georeference
+    
+    01.03.21 V1.2.2
+    - Correction of 3D support for GeoPackage
+    
+    31.08.20 V1.2.1
+    - Correction target path of saved GeoPackage
+    
+    14.08.20 V1.2.0
+    - support GeoPackage (QGIS 3.0)
+    
+    26.03.20 V1.1.7
+    - bugfixes for getUsername()
+
+    02.03.20 V1.1.6
+    - bugfixes for QGIS 2.x
+    
+    27.02.20 V1.1.5
+    - adaptations for QGIS 3.10.3 (no qpj file generate)
+    
+    05.02.20 V1.1.4
+    - Bug-fix MTEXT Codes
+    
+    10.12.19 V1.1.3
+    - adaptations for QGIS 3.10 (crs-bug)
+
+    25.10.19 V1.1.2
+    - Bug-fix 
+
+    23.10.19 V1.1.1
+    - Bug-fix 
+    - support \P Codes in MText
+
+    09.09.19 V1.1.0
+    - support  \U+ Codes 
+    - support Color-Code in MText
+   
+    09.07.19 V1.0.7
+    - Optional 3D
+    
+    27.02.19 V1.0.6
+    - Fixed problem text formatting (%%) for new OGR version
+    
+    04.01.19 V1.0.5
+    - Helmert transformation bug fixed
+    
+    04.01.19 V1.0.4
+    - Helmert transformation bug fixed
+    
+    25.09.18 V1.0.4
+    - CodePage problems eliminated
+    - (Copy the DXF only if necessary)
+
+    01.03.18 V1.0.2
+    - adaptations for QGIS 3.0
+
+    21.02.18 V1.0.1
+    - support qt4 and qt5
+    
+    21.09.17 V0.90
+    - support (ESRI) World files for CAD datasets
+    - support georeferencing 
+    
+    12.04.17 V0.81.2
+          - Adjustment for: \fMS Shell Dlg 2|i0|b0;\H1.98441;265.0m
+    
+    04.04.17 V0.81.1
+	- error processing.runalg fixed (some installation > 2.8.1
+	
+    13.03.17 V0.81
+        - Error fixed at startup with qgis 2.8
+        - use also textformat %%U 
+        
+        01.03.17 V0.8
+        - save a style file (qml) with the shapefile ('s name)
+
+        26.02.17 V0.7.1
+        - Change of installation of the processing library to speed up the launch of QGIS
+
+	21.02.17 V0.7
+        - Fix spaces in shape target path
+	- Fix encode problems
+        
+        17.02.17 V0.6
+        - Adjustment for high resolution screens
+
+        20.12.16 V0.5
+        - Text parameters (attributes) are convert from the DXF
+           E.g. Rotation angle, text size, text color, position (text-align), color
+        - transfer of individual text formats
+        - optional: convert color from DXF
+        
+        25.11.16 V0.4.1
+        - bugfix
+        
+        23.11.2016 V0.4
+        - multiple files can be imported at the same time (batch import) 
+        - MTEXT formatting code will hided and underlined lines are converted
+        - Adjustments for QIS V2.18
+       
+        04.07.2016 V0.3
+        - Remove empty Layers (empty Shapes)
+        - support codepage (charset)
+	- every kind of conversion ( by options) has a own projectname in QGIS-tree
+        - convert non-convertible 3D blocks in 2D
+
+        29.06.2016 V0.2
+        - Adjustments for languages
+        - Customize menu
+          
+        27.06.2016 V0.1:
+	-  release first version
+          
+
+
+author=EZUSoft 
+email=qgis@makobo.de
+
+about=Features:
+      - Other elements than the standard import are displayed 
+      - Display of text (Labeling)
+      - Categorization by Layer
+      - Group by Layer
+      - Separate representation by layers possible
+      - support (ESRI) World files for CAD datasets
+      - support georeferencing 
+
+
+tracker=https://github.com/EZUSoft/AnotherDXF2Shape/issues
+repository=https://github.com/EZUSoft/AnotherDXF2Shape
+# End of mandatory metadata
+
+# Recommended items:
+
+# Uncomment the following line and add your changelog:
+# changelog=
+
+# Tags are comma separated with spaces allowed
+tags=DXF, Convert, Shape, Import, GeoPackage
+
+homepage=http://gis.makobo.de/en_qgis-dxfimport-dxf2shape/
+category=Vector
+icon=icon.png
+# experimental flag
+experimental=False
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+
