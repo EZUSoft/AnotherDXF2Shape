@@ -2,7 +2,7 @@
 """
 /***************************************************************************
  A QGIS plugin
-AnotherDXF2Shape: Add DXF to QGIS , optional georeferencing, optional convert DXF to Shape/GeoPackage
+AnotherDXF2Shape: Convert DXF to shape and add to QGIS
         copyright            : (C) 2020 by EZUSoft
         email                : qgis (at) makobo.de
  ***************************************************************************/
@@ -74,14 +74,3 @@ def DecodeDXFUTF(aktText):
 
 
     return (a + s)    
-if __name__ == "__main__": 
-    import sys
-
-
-
-
-    pass
-
-
-
-

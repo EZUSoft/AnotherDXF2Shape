@@ -2,7 +2,7 @@
 """
 /***************************************************************************
  A QGIS plugin
-AnotherDXF2Shape: Add DXF to QGIS , optional georeferencing, optional convert DXF to Shape/GeoPackage
+AnotherDXF2Shape: Convert DXF to shape and add to QGIS
         copyright            : (C) 2020 by EZUSoft
         email                : qgis (at) makobo.de
  ***************************************************************************/
@@ -160,16 +160,3 @@ def Helmert4Points (p1,p2):
     return p1, p2, p3
 
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    p1, p2, Fehler = ReadWldDat (u"X:/Beckus/2DG_20170914_145454.wld")
-    if p1 != None:
-        p1, p2, p3 = Helmert4Points(p1, p2)
-
-
-
-    if Fehler != None:
-        errbox (Fehler)
-    if len(getFehler()) > 0:
-        errbox("\n\n".join(getFehler()))
-        resetFehler()

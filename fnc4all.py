@@ -2,7 +2,7 @@
 """
 /***************************************************************************
  A QGIS plugin
-AnotherDXF2Shape: Add DXF to QGIS , optional georeferencing, optional convert DXF to Shape/GeoPackage
+AnotherDXF2Shape: Convert DXF to shape and add to QGIS
         copyright            : (C) 2020 by EZUSoft
         email                : qgis (at) makobo.de
  ***************************************************************************/
@@ -384,32 +384,3 @@ def qXDatAbsolute2Relativ(tmpDat, qlrDat, PathAbsolute):
         oDatNum.close()
         os.remove(tmpDat)
         
-if __name__ == "__main__": 
-    print (EZUTempDir())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

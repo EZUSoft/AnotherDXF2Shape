@@ -2,7 +2,7 @@
 """
 /***************************************************************************
  A QGIS plugin
-AnotherDXF2Shape: Add DXF to QGIS , optional georeferencing, optional convert DXF to Shape/GeoPackage
+AnotherDXF2Shape: Convert DXF to shape and add to QGIS
         copyright            : (C) 2020 by EZUSoft
         email                : qgis (at) makobo.de
  ***************************************************************************/
@@ -71,10 +71,3 @@ class uiAbout(QDialog, FORM_CLASS):
         s=s.replace("$$DokuDE$$","http://www.makobo.de/links/Dokumentation_AnotherDXF2Shape?lang=DE&id=" + fncBrowserID())
         self.lblLink.setText(s)
   
-if __name__ == "__main__":
-
-    dummy=0
-
-
-
-

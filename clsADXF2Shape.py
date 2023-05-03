@@ -2,7 +2,7 @@
 """
 /***************************************************************************
  A QGIS plugin
-AnotherDXF2Shape: Add DXF to QGIS , optional georeferencing, optional convert DXF to Shape/GeoPackage
+AnotherDXF2Shape: Convert DXF to shape and add to QGIS
         copyright            : (C) 2020 by EZUSoft
         email                : qgis (at) makobo.de
  ***************************************************************************/
@@ -239,9 +239,3 @@ class clsADXF2Shape:
         cls=uiADXF2Shape()
         cls.RunMenu()
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    c=clsADXF2Shape(None)
-    window = uiAbout()
-    window.show()
-    sys.exit(app.exec_())

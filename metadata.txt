@@ -8,12 +8,18 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=AnotherDXFImporter:master
+name=AnotherDXFImporter
 qgisMinimumVersion=2.8
 qgisMaximumVersion=3.99
 description=Add DXF to QGIS , optional georeferencing, optional convert DXF to Shape/GeoPackage
-version=1.2.5
-changelog=11.11.22 V1.2.5
+version=1.2.7
+changelog=03.03.23 V1.2.7
+    - extended support for MTEXT
+	
+	18.04.23 V1.2.6
+    - adaptations for QGIS 3.30
+	
+	11.11.22 V1.2.5
     - support TEXT Second alignment point (Code 11,21 in DXF)
     
     03.07.22 V1.2.4
@@ -168,4 +174,5 @@ experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
+
 

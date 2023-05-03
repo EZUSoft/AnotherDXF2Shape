@@ -2,7 +2,7 @@
 """
 /***************************************************************************
  A QGIS plugin
-AnotherDXF2Shape: Add DXF to QGIS , optional georeferencing, optional convert DXF to Shape/GeoPackage
+AnotherDXF2Shape: Convert DXF to shape and add to QGIS
         copyright            : (C) 2020 by EZUSoft
         email                : qgis (at) makobo.de
  ***************************************************************************/
@@ -15,6 +15,8 @@ AnotherDXF2Shape: Add DXF to QGIS , optional georeferencing, optional convert DX
  *                                                                         *
  ***************************************************************************/
 """
+
+
 
 
 
@@ -57,6 +59,8 @@ except:
     from PyQt4.QtCore import QSize, QSettings, QTranslator, qVersion, QCoreApplication, QObject, QEvent
 
 import os
+import webbrowser
+from datetime import date
 
 try:
     from .fnc4all import *
@@ -227,7 +231,8 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(translator)
 
-        
+
+
 
 
 
@@ -266,7 +271,23 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
         
         self.btnStart.clicked.connect(self.btnStart_clicked)          
         self.btnReset.clicked.connect(self.btnReset_clicked)  
-        
+ 
+
+        LastDay=date(2023, 5, 19)
+        if (date.today() > LastDay):
+            self.btnDonate.setVisible(False)
+            self.lbDonate.setVisible(False)
+        else:
+            d= LastDay - date.today() 
+            if (d.days == 0):
+                self.lbDonate.setText ('!! Only today !!')  
+            else:
+                self.lbDonate.setText ('Only ' + str(d.days) + ' more days')  
+            if myqtVersion == 4:
+                self.btnDonate.setText('Donate')                
+            self.btnDonate.clicked.connect(self.btnDonate_clicked) 
+
+ 
         self.StartHeight = self.height()
         self.StartWidth  = self.width()
         
@@ -523,6 +544,7 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
         
         iCodePage=s.value( "iCodePage", 0 ) 
         self.txtFaktor.setText('1.3')
+        self.txtErsatz4Tab.setText(' | ')
 
 
         self.cbCharSet.addItems(self.charsetList)
@@ -639,6 +661,10 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
         
         s.setValue( "iCodePage", self.cbCharSet.currentIndex())
          
+    def btnDonate_clicked(self):
+        sLink='https://www.makobo.de/links/Donate_AnotherDXF2Shape.php?id=' + fncBrowserID()
+        webbrowser.open(sLink)
+        
     
     def btnReset_clicked(self):
         result = QMessageBox.question(None,'Another DXF2Shape' , self.tr('Restore default settings'), QMessageBox.Yes | QMessageBox.No, QMessageBox.No)        
@@ -718,9 +744,9 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
 
         if self.chkGPKG.isChecked(): out="GPKG"
         if self.chkSHP.isChecked():  out="SHP"
-        
 
-        Antw = DXFImporter (self,  out,      self.listDXFDatNam, ZielPfad,        self.chkSHP.isChecked() or self.chkGPKG.isChecked(), self.cbCharSet.currentText(),self.chkCol.isChecked(),self.chkLay.isChecked(), self.chkUseTextFormat.isChecked(), self.chkUseColor4Point.isChecked(), self.chkUseColor4Line.isChecked(), self.chkUseColor4Poly.isChecked(), dblFaktor, self.chkTransform.isChecked(), DreiPassPunkte, self.chk3D.isChecked())
+
+        Antw = DXFImporter (self,  out,      self.listDXFDatNam, ZielPfad,        self.chkSHP.isChecked() or self.chkGPKG.isChecked(), self.cbCharSet.currentText(),self.chkCol.isChecked(),self.chkLay.isChecked(), self.chkUseTextFormat.isChecked(), self.chkUseColor4Point.isChecked(), self.chkUseColor4Line.isChecked(), self.chkUseColor4Poly.isChecked(), dblFaktor, self.chkTransform.isChecked(), DreiPassPunkte, self.chk3D.isChecked(), self.txtErsatz4Tab.text())
         self.FormRunning(False) 
           
     def SetAktionText(self,txt):
@@ -764,7 +790,7 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
         Anz(self.listDXFDatNam);Anz(self.txtZielPfad)
         Anz(self.chkCol); Anz(self.chkLay); Anz(self.chkSHP)
         if myqtVersion == 5: Anz(self.chkGPKG)
-        Anz(self.lbFaktor);Anz(self.txtFaktor)
+        Anz(self.lbFaktor);Anz(self.txtFaktor);Anz(self.txtErsatz4Tab)
         
         Anz(self.chkTransform)
         Anz(self.tabSetting)
@@ -795,14 +821,3 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
         s = QSettings( "EZUSoft", fncProgKennung() )
         s.setValue("SaveWidth", str(self.width()))
         s.setValue("SaveHeight", str(self.height()))
-if __name__ == "__main__":
- 
-    app = QApplication(sys.argv)
-    print (fncPluginVersion().split("."))
-
-
-
-
-
-
-
