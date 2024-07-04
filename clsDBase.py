@@ -423,7 +423,8 @@ def attTableEdit (sOutForm, inpDat,bFormat,sCharSet,gpkgTable=None, txtErsatz4Ta
     layer.CreateField(ogr.FieldDefn('dx', ogr.OFTReal))
     layer.CreateField(ogr.FieldDefn('dx_u', ogr.OFTString))
     layer.CreateField(ogr.FieldDefn('dy', ogr.OFTReal))
-    layer.CreateField(ogr.FieldDefn('dy_u', ogr.OFTString))        
+    layer.CreateField(ogr.FieldDefn('dy_u', ogr.OFTString)) 
+
     i=1
     layer.StartTransaction()
     feature = layer.GetNextFeature()
@@ -463,7 +464,7 @@ def attTableEdit (sOutForm, inpDat,bFormat,sCharSet,gpkgTable=None, txtErsatz4Ta
 
 
 
-                
+
                 params = csvSplit (sDaten)
                 for param in params:
 
@@ -509,7 +510,7 @@ def attTableEdit (sOutForm, inpDat,bFormat,sCharSet,gpkgTable=None, txtErsatz4Ta
                             z,t=ZahlTextSplit(w)
 
                             feature.SetField('dy', z)
-                            feature.SetField('dy_u', t)                       
+                            feature.SetField('dy_u', t)                                         
                         
                         if f == "t":
 

@@ -9,11 +9,24 @@
 
 [general]
 name=AnotherDXFImporter
-qgisMinimumVersion=2.8
+qgisMinimumVersion=2.12
 qgisMaximumVersion=3.99
 description=Add DXF to QGIS , optional georeferencing, optional convert DXF to Shape/GeoPackage
-version=1.2.7
-changelog=03.03.23 V1.2.7
+version=1.3.1
+changelog=11.09.23 V1.3.0
+    - another optimize TEXT Second alignment point (Code 11,21 in DXF)
+	
+	02.09.23 V1.3.0
+    - optimize TEXT Second alignment point (Code 11,21 in DXF)
+
+	20.07.23 V1.2.9
+    - createSpatialIndex() for  GPKG
+	- ignore CRS if not set
+	
+	17.07.23 V1.2.8
+    - correct CRS information in the GPKG
+	
+	03.03.23 V1.2.7
     - extended support for MTEXT
 	
 	18.04.23 V1.2.6

@@ -86,6 +86,14 @@ AnotherDXF2Shape: Convert DXF to shape and add to QGIS
 
 
 
+
+
+
+
+
+
+
+
 from random import randrange
 from shutil import copyfile
 import uuid
@@ -209,7 +217,11 @@ def labelingDXF (qLayer, bFormatText, bUseColor4Point, dblFaktor):
     qLayer.setCustomProperty("labeling/dataDefined/OffsetQuad", "1~~1~~\"anchor\"~~")
     
 
-    qLayer.setCustomProperty("labeling/dataDefined/OffsetXY", "1~~1~~array(\"dx\",-\"dy\")~~")
+
+    sf = "%.1f" % dblFaktor
+    sf = sf + " * \"size\""
+    qLayer.setCustomProperty("labeling/dataDefined/OffsetXY", "1~~1~~array(\"dx\"+" + sf + "/4*sin(if(\"angle\" is NULL,0,\"angle\")*pi()/180),-\"dy\"+" + sf +"/4*cos(if(\"angle\" is NULL,0,\"angle\")*pi()/180))~~")
+
 
 
     qLayer.setCustomProperty("labeling/obstacle","false")
@@ -709,6 +721,11 @@ def EineDXF(uiParent, mLay_crs, bZielSave, sOutForm, grpProjekt,AktList, Kern, A
                 opt = '-append -update --config DXF_ENCODING "' + ogrCharSet + '" '
                 
 
+
+                if mLay_crs.toProj4() != "":
+                    opt = opt + '-a_srs "' + mLay_crs.toProj4() + '" '
+                
+
                 opt = opt + '--config DXF_INCLUDE_RAW_CODE_VALUES TRUE '
                 opt = opt + ('%s -nlt %s %s -sql "select *, ogr_style from entities where OGR_GEOMETRY %s" -nln "%s"') % (AktOpt,v[1],optGCP,v[2], gpkgTable)      
                 if bGen3D:
@@ -961,6 +978,7 @@ def EineDXF(uiParent, mLay_crs, bZielSave, sOutForm, grpProjekt,AktList, Kern, A
                         if sOutForm == "SHP":
                             Layer.saveNamedStyle (qmldat)
                         else:
+                            Layer.dataProvider().createSpatialIndex() 
                             Layer.saveStyleToDatabase(gpkgTable, gpkgTable, True, "")
 
                     else:
