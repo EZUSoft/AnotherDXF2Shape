@@ -260,6 +260,7 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
         self.tabTPoints.cellChanged.connect(self.KorrAktTableValue)
         self.leTXOff.editingFinished.connect(self.KorrAktParam_leTXOff)
         self.leTYOff.editingFinished.connect(self.KorrAktParam_leTYOff)
+        self.btnPastePoints.clicked.connect(self.btnPastePoints_clicked)
 
         
         self.optTWld.clicked.connect(self.ManageTransformSettings) 
@@ -334,6 +335,7 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
     
     def FillPoint4Wld (self,wldname):
         self.tabTPoints.setVisible(False)
+        self.btnPastePoints.setVisible(False)
         if os.path.exists(wldname):
             p1, p2, Fehler = ReadWldDat(wldname)
             if Fehler != None:
@@ -347,6 +349,7 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
                 self.TableNone2Empty(self.tabTPoints)
                 
                 self.tabTPoints.setVisible(True)
+                
                 self.tabTPoints.item(0,0).setText (str(p1[0][0]));self.tabTPoints.item(0,1).setText (str(p1[0][1]))
                 self.tabTPoints.item(0,2).setText (str(p1[1][0]));self.tabTPoints.item(0,3).setText (str(p1[1][1]))                
                 if p2 != None:
@@ -367,6 +370,71 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
                     self.tabTPoints.scrollToItem(self.tabTPoints.currentItem()) 
                 self.tabTPoints.currentItem().setText(str(dblValue))
 
+    def btnPastePoints_clicked(self):
+        """This function will fetch the clipboard contents and parse it into the table. 
+        The format expected is 4 columns, with ungeox, ungeoy, geox and geoy as the format. Have included a parser for the header, in case
+        the user copies it over from Excel and includes the header row"""
+        
+        try:
+            if myqtVersion == 5:
+                clipboard = QApplication.clipboard()
+            else:
+                clipboard = QtGui.QApplication.clipboard()
+            clipboard_text = clipboard.text()
+            
+            if not clipboard_text or clipboard_text.strip() == "": #Check that there actually is some data.
+                msgbox(self.tr("Clipboard is empty"))
+                return
+            
+            #parse it.
+            lines = clipboard_text.strip().split("\n") # New line delimited rows
+            points = [] #Empty list for the points
+            for line in lines:
+                line = line.strip()
+                if not line: #Skip empty lines
+                    continue
+                parts = None
+                for separator in ["\t", ",", ";"]: #Try common separators
+                    if separator in line:
+                        parts = line.split(separator)
+                        break
+                if len(parts) != 4:
+                    continue #Skip lines that don't have exactly 4 parts (should be ungeox, ungeoy, geox, geoy!)
+                
+                try:
+                    coords = [float(part.replace(",", ".")) for part in parts] #Convert to float, also handling comma as decimal
+                    points.append(coords)
+                except ValueError:
+                    continue #Skip lines with invalid float conversion - such as the header
+                
+            if not points:
+                msgbox(self.tr("No valid point pairs found in clipboard"))
+                return
+            
+            points = points[:4] #Truncate it to max 4 points due to table size.
+            
+            if len(points ==1):
+                self.cbTArt.setCurrentIndex(0) #1 point
+            elif len(points) == 2:
+                self.cbTArt.setCurrentIndex(1) #2 points - Use helmert transform
+            elif len(points) == 3:
+                self.cbTArt.setCurrentIndex(2) #3 points - Use georef transform for 3 point
+            elif len(points) == 4:
+                self.cbTArt.setCurrentIndex(3) #4 points - Use georef transform for 4 point
+                
+            self.tabTPoints.setRowCount(len(points))
+            self.TableNone2Empty(self.tabTPoints)
+            
+            for row, point in enumerate(points): # Each row should have 4 values - 
+                for col, value in enumerate(point): # Split each of the 4 into their rows.
+                    self.tabTPoints.item(row, col).setText(str(value))
+            
+            msgbox(self.tr("Successfully pasted {} point pairs from clipboard").format(len(points)))
+            
+        except Exception as e:
+            msgbox(self.tr("Error pasting points from clipboard: ") + str(e))
+            
+    
     def KorrAktParam_leTXOff (self):
         if self.leTXOff.text() !="":
             try:
@@ -468,7 +536,7 @@ class uiADXF2Shape(QDialog, FORM_CLASS):
             
             self.tabTPoints.setVisible(self.optTPoint.isChecked() or self.optTWld.isChecked()) 
             self.tabTPoints.setEnabled(self.optTPoint.isChecked())
-            
+            self.btnPastePoints.setVisible(self.optTPoint.isChecked())
             self.grpTParam.setVisible(self.optTParam.isChecked())  
             self.cbTArt.setVisible(self.optTPoint.isChecked())     
             self.lbT4Wld.setVisible(self.optTWld.isChecked())            
