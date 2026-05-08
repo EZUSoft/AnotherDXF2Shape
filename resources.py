@@ -3,7 +3,7 @@
 /***************************************************************************
  A QGIS plugin
 AnotherDXF2Shape: Convert DXF to shape and add to QGIS
-        copyright            : (C) 2020 by EZUSoft
+        copyright            : (C) 2026 by EZUSoft
         email                : qgis (at) makobo.de
  ***************************************************************************/
 /***************************************************************************
@@ -24,7 +24,8 @@ AnotherDXF2Shape: Convert DXF to shape and add to QGIS
 
 
 
-from PyQt5 import QtCore
+
+from qgis.PyQt import QtCore
 
 qt_resource_data = b"\
 \x00\x00\x4e\x46\

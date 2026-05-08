@@ -197,23 +197,6 @@
        </item>
        <item>
         <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0">
-         <item row="1" column="2">
-          <layout class="QVBoxLayout" name="verticalLayout_5">
-           <item>
-            <spacer name="horizontalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
          <item row="1" column="1">
           <widget class="QCheckBox" name="chkLay">
            <property name="sizePolicy">
@@ -246,6 +229,30 @@
             <string>use geometry collection 
 (some elements may be lost)
 </string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="2">
+          <widget class="QCheckBox" name="chkRawCode">
+           <property name="text">
+            <string>RawCodeValues</string>
            </property>
           </widget>
          </item>
@@ -563,44 +570,55 @@
           </layout>
          </item>
          <item row="0" column="1">
-          <widget class="QTableWidget" name="tabTPoints">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="rowCount">
-            <number>4</number>
-           </property>
-           <property name="columnCount">
-            <number>4</number>
-           </property>
-           <row/>
-           <row/>
-           <row/>
-           <row/>
-           <column>
-            <property name="text">
-             <string>ungeoref X</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>ungeoref Y</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>georef X</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>georef Y</string>
-            </property>
-           </column>
-          </widget>
+          <layout class="QVBoxLayout" name="verticalLayout_points">
+           <item>
+            <widget class="QTableWidget" name="tabTPoints">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="rowCount">
+              <number>4</number>
+             </property>
+             <property name="columnCount">
+              <number>4</number>
+             </property>
+             <row/>
+             <row/>
+             <row/>
+             <row/>
+             <column>
+              <property name="text">
+               <string>ungeoref X</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>ungeoref Y</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>georef X</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>georef Y</string>
+              </property>
+             </column>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnPastePoints">
+             <property name="text">
+              <string>Paste point pairs from clipboard</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>

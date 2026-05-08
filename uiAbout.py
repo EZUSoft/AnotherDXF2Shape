@@ -3,7 +3,7 @@
 /***************************************************************************
  A QGIS plugin
 AnotherDXF2Shape: Convert DXF to shape and add to QGIS
-        copyright            : (C) 2020 by EZUSoft
+        copyright            : (C) 2026 by EZUSoft
         email                : qgis (at) makobo.de
  ***************************************************************************/
 /***************************************************************************
@@ -22,34 +22,51 @@ AnotherDXF2Shape: Convert DXF to shape and add to QGIS
 
 
 
-from qgis.utils import os, sys
+
+
+
+
+
+
+
+from qgis.utils import os
+from qgis.PyQt import uic, QtWidgets, QtCore
+
+
+
+
 
 try:
-    from PyQt5          import  uic, QtWidgets
-    from PyQt5.QtCore   import  QDir
-    from PyQt5.QtWidgets import QDialog
-except:
-    from PyQt4          import QtGui, uic
-    from PyQt4.QtCore   import  QDir
-    from PyQt4.QtGui    import QDialog
+    from .fnc4ADXF2Shape import fncBrowserID
+    from .qt_compat import QT6
+except ImportError:
+    from fnc4ADXF2Shape import fncBrowserID
+    from qt_compat import QT6
 
-try:
-    from .fnc4ADXF2Shape import *
 
-except:
-    from fnc4ADXF2Shape import *
 
 
 
 d = os.path.dirname(__file__)
-QDir.addSearchPath( "AnotherDXF2Shape", d )
-uiAboutBase = uic.loadUiType( os.path.join( d, 'uiAbout.ui' ) )[0]
 
-FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'uiAbout.ui'))
-   
 
-class uiAbout(QDialog, FORM_CLASS):  
+
+QtCore.QDir.addSearchPath("AnotherDXF2Shape", d)
+
+
+FORM_CLASS, _ = uic.loadUiType(
+    os.path.join(d, 'uiAbout.ui')
+)
+
+
+class uiAbout(QtWidgets.QDialog, FORM_CLASS):
+
+
+
+
+
+
+
     def __init__(self, parent=None):
 
         super(uiAbout, self).__init__(parent)
@@ -60,14 +77,43 @@ class uiAbout(QDialog, FORM_CLASS):
 
         self.setupUi(self)
 
-        s=self.lblLink.text()
-        s=s.replace("$$HomepageEN$$","http://www.makobo.de/links/Home_AnotherDXF2Shape.php?lang=EN&id=" + fncBrowserID())
-        s=s.replace("$$HomepageDE$$","http://www.makobo.de/links/Home_AnotherDXF2Shape.php?lang=DE&id=" + fncBrowserID())
-        
-        s=s.replace("$$ForumEN$$","http://www.makobo.de/links/Forum_AnotherDXF2Shape.php?lang=EN&id=" + fncBrowserID())
-        s=s.replace("$$ForumDE$$","http://www.makobo.de/links/Forum_AnotherDXF2Shape.php?lang=DE&id=" + fncBrowserID())
-        
-        s=s.replace("$$DokuEN$$","http://www.makobo.de/links/Dokumentation_AnotherDXF2Shape?lang=EN&id=" + fncBrowserID())
-        s=s.replace("$$DokuDE$$","http://www.makobo.de/links/Dokumentation_AnotherDXF2Shape?lang=DE&id=" + fncBrowserID())
+
+
+
+
+        s = self.lblLink.text()
+        browser_id = fncBrowserID()
+
+        s = s.replace(
+            "$$HomepageEN$$",
+            "https://makobo.de/links/Home_AnotherDXF2Shape.php?lang=EN&id=" + browser_id
+        )
+        s = s.replace(
+            "$$HomepageDE$$",
+            "https://makobo.de/links/Home_AnotherDXF2Shape.php?lang=DE&id=" + browser_id
+        )
+
+        s = s.replace(
+            "$$ForumEN$$",
+            "https://makobo.de/links/Forum_AnotherDXF2Shape.php?lang=EN&id=" + browser_id
+        )
+        s = s.replace(
+            "$$ForumDE$$",
+            "https://makobo.de/links/Forum_AnotherDXF2Shape.php?lang=DE&id=" + browser_id
+        )
+
+        s = s.replace(
+            "$$DokuEN$$",
+            "https://makobo.de/links/Dokumentation_AnotherDXF2Shape?lang=EN&id=" + browser_id
+        )
+        s = s.replace(
+            "$$DokuDE$$",
+            "https://makobo.de/links/Dokumentation_AnotherDXF2Shape?lang=DE&id=" + browser_id
+        )
+
         self.lblLink.setText(s)
-  
+
+
+
+
+

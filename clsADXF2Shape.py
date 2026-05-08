@@ -3,7 +3,7 @@
 /***************************************************************************
  A QGIS plugin
 AnotherDXF2Shape: Convert DXF to shape and add to QGIS
-        copyright            : (C) 2020 by EZUSoft
+        copyright            : (C) 2026 by EZUSoft
         email                : qgis (at) makobo.de
  ***************************************************************************/
 /***************************************************************************
@@ -24,43 +24,35 @@ AnotherDXF2Shape: Convert DXF to shape and add to QGIS
 
 
 import webbrowser
-from  os import getenv, path
+import sys
+import os
+import uuid
+from os import getenv, path
 import getpass
 
-try:
-    from PyQt5.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-    from PyQt5.QtWidgets import QApplication, QAction,QMessageBox
-    from PyQt5.QtGui import  QIcon
-    myqtVersion = 5
-
-except:
-    from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-    from PyQt4.QtGui import QAction, QIcon
-    myqtVersion = 4
-
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtWidgets import QApplication, QAction, QMessageBox
+from qgis.PyQt.QtGui import QIcon
 
 try:
-    if myqtVersion == 4:
-        from .resourcesqt4 import *
-    else:
-        from .resources import *
 
-    from .uiAbout      import *
-    from .clsDXFTools  import *
+    from .qt_compat import *
+    from .resources import *
+    from .uiAbout import *
+    from .clsDXFTools import *
     from .uiADXF2Shape import *
-    from .fnc4all      import *
+    from .fnc4all import *
     from .fnc4ADXF2Shape import *
-except:
-    if myqtVersion == 4:
-        from resourcesqt4 import *
-    else:
-        from resources import *
+except ImportError:
 
-    from uiAbout      import *
-    from clsDXFTools  import *
+    from qt_compat import *
+    from resources import *
+    from uiAbout import *
+    from clsDXFTools import *
     from uiADXF2Shape import *
-    from fnc4all      import *
+    from fnc4all import *
     from fnc4ADXF2Shape import *
+
 
 class clsADXF2Shape:
 
@@ -85,10 +77,10 @@ class clsADXF2Shape:
 
         locale = QSettings().value('locale/userLocale')
 
-        if locale is None or locale == NULL:
+        if locale is None or locale == '':
             locale = 'en'
         else:
-            locale= QSettings().value('locale/userLocale')[0:2]
+            locale = QSettings().value('locale/userLocale')[0:2]
         locale_path = os.path.join(
             self.plugin_dir,
             'i18n',
@@ -105,17 +97,17 @@ class clsADXF2Shape:
         self.dlg = uiADXF2Shape()
 
 
-
         self.actions = []
         self.menu = self.tr('&DXF Import/Convert')
         
-        s = QSettings( "EZUSoft", fncProgKennung() )
+        s = QSettings("EZUSoft", fncProgKennung())
         try:
 
 
-            s.setValue( "–id–", fncXOR( str(uuid.uuid4()) + '|' + str(uuid.uuid4()) ))
+            s.setValue("–id–", fncXOR(str(uuid.uuid4()) + '|' + str(uuid.uuid4())))
         except:
-            s.setValue( "–id–", fncXOR( str(uuid.uuid4()) + '|' + str(uuid.uuid4()) ))
+            s.setValue("–id–", fncXOR(str(uuid.uuid4()) + '|' + str(uuid.uuid4())))
+
 
     def tr(self, message):
 
@@ -232,10 +224,11 @@ class clsADXF2Shape:
 
     def About(self): 
 
-        cls=uiAbout()
-        cls.exec_()
+        cls = uiAbout()
+        exec_dialog(cls)
         
     def run(self):
-        cls=uiADXF2Shape()
+        cls = uiADXF2Shape()
         cls.RunMenu()
+
 

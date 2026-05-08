@@ -3,7 +3,7 @@
 /***************************************************************************
  A QGIS plugin
 AnotherDXF2Shape: Convert DXF to shape and add to QGIS
-        copyright            : (C) 2020 by EZUSoft
+        copyright            : (C) 2026 by EZUSoft
         email                : qgis (at) makobo.de
  ***************************************************************************/
 /***************************************************************************
@@ -32,40 +32,33 @@ AnotherDXF2Shape: Convert DXF to shape and add to QGIS
 
 
 
-from qgis.core import *
-from qgis.utils import os, sys
-from itertools import cycle
+
+
+
+
+
+
+
+from qgis.core import QgsProject, QgsMessageLog, Qgis
 
 try:
-    from PyQt5 import QtGui
-    from PyQt5.QtCore import QSettings
-    from PyQt5.QtWidgets import QApplication,QMessageBox
-    from configparser import ConfigParser
-    
-    def myQGIS_VERSION_INT():
-        return Qgis.QGIS_VERSION_INT
-    myqtVersion = 5
 
-except:
-    from PyQt4 import QtGui
-    from PyQt4.QtCore import QSettings
-    from PyQt4.QtGui import QMessageBox,QApplication
-    from ConfigParser import ConfigParser
-    
-    def myQGIS_VERSION_INT():
-        return QGis.QGIS_VERSION_INT
-    myqtVersion = 4
-
-
-try:
-    from PyQt4.QtCore import QString
+    from qgis.utils import os, sys
+    from qgis.PyQt.QtCore import QSettings
+    from qgis.PyQt.QtWidgets import QApplication, QMessageBox
 except ImportError:
-    QString = type(str)
-    
-    
+
+    import os
+    import sys
+    QSettings = None
+    QApplication = None
+    QMessageBox = None
+
+from itertools import cycle
+from configparser import ConfigParser
+
 import re
-import time 
-import os
+import time
 import getpass
 import traceback
 import tempfile
@@ -73,143 +66,165 @@ import codecs
 from glob import glob
 
 
-def NodeFindByFullName (FullNode, Start = None):
-    if Start is None: Start=QgsProject.instance().layerTreeRoot()
-    if type(FullNode) == type([]):
-        sNode=FullNode
-    else:
-        sNode=FullNode.split("\t")
-    Gefunden=None
+
+
+def myQGIS_VERSION_INT():
+    try:
+        return Qgis.QGIS_VERSION_INT
+    except Exception:
+        return 0
+
+
+
+
+
+def NodeFindByFullName(FullNode, Start=None):
+    if Start is None:
+        Start = QgsProject.instance().layerTreeRoot()
+
+    sNode = FullNode if isinstance(FullNode, list) else FullNode.split("\t")
+    Gefunden = None
+
     for node in Start.children():
-        if str(type(node))  == "<class 'qgis._core.QgsLayerTreeGroup'>":
+        if node.__class__.__name__ == "QgsLayerTreeGroup":
             if node.name() == sNode[0]:
                 if len(sNode) > 1:
                     Gefunden = NodeFindByFullName(sNode[1:], node)
                 else:
                     Gefunden = node
-    return Gefunden             
+    return Gefunden
 
 
-def NodeCreateByFullName (FullNode, Start = None):
+def NodeCreateByFullName(FullNode, Start=None):
 
 
 
-    ToDo=0
-    if Start is None: Start=QgsProject.instance().layerTreeRoot()
-    if type(FullNode) == type([]):
-        sNode=FullNode
-    else:
-        sNode=FullNode.split("\t")
-    Found=False
+    ToDo = 0
+    if Start is None:
+        Start = QgsProject.instance().layerTreeRoot()
+
+    sNode = FullNode if isinstance(FullNode, list) else FullNode.split("\t")
+    Found = False
+
     for node in Start.children():
-        if str(type(node))  == "<class 'qgis._core.QgsLayerTreeGroup'>":
-            if node.name() == sNode[0]: 
-                Found=True
+        if node.__class__.__name__ == "QgsLayerTreeGroup":
+            if node.name() == sNode[0]:
+                Found = True
                 break
-    if not Found: node=Start.addGroup(sNode[0]);ToDo=ToDo+1
+
+    if not Found:
+        node = Start.addGroup(sNode[0])
+        ToDo += 1
+
     if len(sNode) > 1:
-        node, ReToDo = NodeCreateByFullName (sNode[1:],node)
-        ToDo=ToDo+ReToDo
+        node, ReToDo = NodeCreateByFullName(sNode[1:], node)
+        ToDo += ReToDo
+
     return node, ToDo
 
-def NodeRemoveByFullName (FullNode, Start = None):
-    if Start is None: Start=QgsProject.instance().layerTreeRoot()
-    if type(FullNode) == type([]):
-        sNode=FullNode
-    else:
-        sNode=FullNode.split("\t")
-    delNodeName=sNode[-1:][0]
-    if len(sNode) > 1:
-        parent=NodeFindByFullName (sNode[:-1],Start)
-    else:
-        parent=Start
-    if not parent: return False
+
+def NodeRemoveByFullName(FullNode, Start=None):
+    if Start is None:
+        Start = QgsProject.instance().layerTreeRoot()
+
+    sNode = FullNode if isinstance(FullNode, list) else FullNode.split("\t")
+    delNodeName = sNode[-1]
+
+    parent = NodeFindByFullName(sNode[:-1], Start) if len(sNode) > 1 else Start
+    if not parent:
+        return False
+
     for node in parent.children():
-        if str(type(node))  == "<class 'qgis._core.QgsLayerTreeGroup'>":
+        if node.__class__.__name__ == "QgsLayerTreeGroup":
             if node.name() == delNodeName:
                 parent.removeChildNode(node)
                 return True
+    return False
+
+
+
 
 
 def toUnicode(text):
+    if text is None:
+        return ""
+    return str(text)
 
 
 
 
 
-    if myqtVersion == 4 and type(text) == QString:
-        return unicode(text)
-    if (type(text) == str and sys.version[0] == "2"):
-        return text.decode("utf8")
-    else:
-        return text
-    
-glFehlerListe=[]
-glHinweisListe=[]
-def addFehler (Fehler): 
-    glFehlerListe.append (toUnicode(Fehler))
-def getFehler() :
+glFehlerListe = []
+glHinweisListe = []
+
+def addFehler(Fehler):
+    glFehlerListe.append(toUnicode(Fehler))
+
+def getFehler():
     return glFehlerListe
-def resetFehler() :
-    global glFehlerListe
-    glFehlerListe = []  
-def addHinweis (Hinweis):
-    glHinweisListe.append (toUnicode(Hinweis))
-def getHinweis2String() :
-    try:
-        return u"\n".join(glHinweisListe)
-    except:
-        return "\n".join(glHinweisListe)
 
-def getHinweis() :
+def resetFehler():
+    global glFehlerListe
+    glFehlerListe = []
+
+def addHinweis(Hinweis):
+    glHinweisListe.append(toUnicode(Hinweis))
+
+def getHinweis():
     return glHinweisListe
-def resetHinweis() :
+
+def getHinweis2String():
+    return "\n".join(glHinweisListe)
+
+def resetHinweis():
     global glHinweisListe
-    glHinweisListe = [] 
+    glHinweisListe = []
+
+
+
+
 
 def fncPluginVersion():
     config = ConfigParser()
-    config.read(os.path.join(os.path.dirname(__file__),'metadata.txt'))
-
-
-
+    config.read(os.path.join(os.path.dirname(__file__), 'metadata.txt'))
     return config.get('general', 'version')
-    
 
 
 
 
 
-
-
-def subLZF(Sonstiges = None):
-
+def subLZF(Sonstiges=None):
     exc_type, exc_obj, exc_tb = sys.exc_info()
-    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    tb_lineno=exc_tb.tb_lineno
     try:
-        QgsMessageLog.logMessage( traceback.format_exc().replace("\n",chr(9))+ (chr(9) + Sonstiges if Sonstiges else ""), u'EZUSoft:Error' )
-    except:
+        QgsMessageLog.logMessage(
+            traceback.format_exc().replace("\n", "\t") +
+            ("\t" + Sonstiges if Sonstiges else ""),
+            'EZUSoft:Error'
+        )
+    except Exception:
         pass
 
+    addFehler(
+        "LZF:" + traceback.format_exc().replace("\n", "\t") +
+        ("\t" + Sonstiges if Sonstiges else "")
+    )
 
-    addFehler ("LZF:" + traceback.format_exc().replace("\n",chr(9)) + (chr(9) + Sonstiges if Sonstiges else ""))    
 
-def cut4view (fulltext,zeichen=1500,zeilen=15,anhang='\n\n                  ............. and many more .........\n'):
+def cut4view(fulltext, zeichen=1500, zeilen=15,
+             anhang='\n\n............. and many more .........\n'):
     cut = False
-    ctext=fulltext
+    ctext = fulltext[:zeichen] if len(fulltext) > zeichen else fulltext
     if len(fulltext) > zeichen:
-        cut=True
-        ctext=ctext[:zeichen]
-    
-    arr=ctext.split('\n')
+        cut = True
+
+    arr = ctext.split('\n')
     if len(arr) > zeilen:
         cut = True
-        ctext= '\n'.join(arr[:zeilen])
-    if cut:
-        ctext=ctext + anhang
-    return ctext
- 
+        ctext = '\n'.join(arr[:zeilen])
+
+    return ctext + anhang if cut else ctext
+
+
 def errbox (text,p=None):
     su= toUnicode(text)
 
@@ -286,7 +301,7 @@ def debuglog(text,DebugMode=False):
 def hinweislog(text,p=None):
         su= toUnicode(text)   
         try:
-            QgsMessageLog.logMessage( su, 'AXF2Shape:Comments' )
+            QgsMessageLog.logMessage( su, 'EZUSoft:Comments' )
         except:
             pass
     
@@ -346,16 +361,11 @@ def toUTF8(uText):
         return uText    
         
 def tryDecode(txt,sCharset):
-    if myqtVersion == 5: 
-        try:
-            return str(bytes(txt,"utf8").decode(sCharset) )
-        except:
-            return txt
     try:
-        re=txt.decode( sCharset) 
-        return re
+        return str(bytes(txt,"utf8").decode(sCharset) )
     except:
-        return '#decodeerror4#'    
+        return txt
+
 
 def ClearDir(Verz):
     for dat in glob(Verz +'*.*'):
@@ -383,4 +393,31 @@ def qXDatAbsolute2Relativ(tmpDat, qlrDat, PathAbsolute):
         iDatNum.close()
         oDatNum.close()
         os.remove(tmpDat)
+
+def fncUniDatReadAll23(DatName,sEncode):
+
+
+
+
+    tmp = open(DatName, "r", encoding=sEncode)
+
+    tmpArray =tmp.readlines()
+    tmp.close()
+    return tmpArray
+
+def subUniDatWriteAll23(DatName, Art, zArray,sEncode):
+
+
+
+
+
+    tmp = open(DatName, Art, encoding=sEncode)
+
+    tmp.writelines(zArray)
+    tmp.close()
+    
+def fncUniDatOpen23 (DatName, Art, sEncode):
+    tmp = open(DatName, Art, encoding=sEncode)
+
+    return tmp
         
